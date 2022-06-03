@@ -1,12 +1,12 @@
 #!./bin/python3
 import os
 import sys
+import glob
+import argparse
 import dtw
 import numpy as np
-import glob
 import matplotlib.pyplot as plt
 from numpy.linalg import norm
-import argparse
 
 vent_folder = "./last_ventilation/"
 font = {
@@ -49,7 +49,6 @@ def parseArguments(argv):
     parser = argparse.ArgumentParser(description='Demonstate the usage of DTW to evaluate ventilations')
     parser.add_argument('barycenter_csv',  action='store', help='barycenter csv file generated with DBA')
     parser.add_argument('testventilation_csv',  action='store', help='test ventilation csv file')
-
     return parser.parse_args(argv)
 
 if __name__ == "__main__":
