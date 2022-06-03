@@ -1,0 +1,10 @@
+# Ignore python venv
+bin/
+include/
+lib/
+lib64
+share/
+pyvenv.cfg
+
+# Ignore temporary files
+last_ventilation/*.jpg
