@@ -28,9 +28,13 @@ def main(argv):
     barycenter_csv_file = args.barycenter_csv
     testventilation_csv_file = args.testventilation_csv
 
-    files = glob.glob(vent_folder+"*.jpg")
-    for file in files:
-        os.remove(file)
+    if not os.path.exists(vent_folder):
+        os.makedirs(vent_folder)
+    else:
+        files = glob.glob(vent_folder+"*.jpg")
+        for file in files:
+            os.remove(file)
+    
     avg         = np.genfromtxt(barycenter_csv_file, delimiter=",") # load dba barycenter from csv
     vent        = np.genfromtxt(testventilation_csv_file, delimiter=",", usecols=(1), skip_header=1) # load test ventilation
     vent_mapped = np.interp(vent, (400, vent[0]), (0, 1)) # map test ventilation to range 0 and 1, using 400ppm as and value (calibrated CO2 sensor important)
