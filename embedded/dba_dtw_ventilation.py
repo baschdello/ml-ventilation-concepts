@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 from numpy.linalg import norm
 from tslearn.barycenters import dtw_barycenter_averaging
 
-mqtt_server        = ""
+mqtt_server        = "co2.fritz.box"
 sensor_state_topic = "state/myroom"
 sensor_cmd_topic   = "cmd/myroom"
 sensor_co2_topic   = "meas/myroom/co2"
@@ -71,6 +71,7 @@ def wait_for_co2():
         time.sleep(0.1)
     return curr_val
     
+
 if __name__ == '__main__':
     client = mqtt.Client()
     client.on_connect = on_connect
@@ -123,17 +124,22 @@ if __name__ == '__main__':
                 os.remove(file)
             avg = np.genfromtxt('center.csv',delimiter=",") # load dba from csv
             co2_vent = []
-            for i in range(1,len(avg)):
+            i = 1
+            while window_open:
+                j = i
+                if len(avg) < j:
+                    j = len(avg)
                 print("waiting for co2")
                 co2 = wait_for_co2()
                 if co2 != -1:
                     co2_vent = np.append(co2_vent, co2)
                     co2_mapped = np.interp(co2_vent, (400, co2_vent[0]), (0,1))
-                    metr = dtw.dtw(co2_mapped[:i],avg[:i],lambda x, y: norm(x - y))[0]
-                    saveDBAimg(vent_folder+"step%04d"%i+".jpg",co2_mapped[:i].transpose(), avg[:i], "dtw: "+str("%.2f" % metr))
+                    print("i="+str(i)+"  j="+str(j))
+                    print("len(avg)"+str(len(avg)))
+                    metr = dtw.dtw(co2_mapped[:i],avg[:j],lambda x, y: norm(x - y))[0]
+                    saveDBAimg(vent_folder+"step%04d"%i+".jpg",co2_mapped[:i].transpose(), avg[:j], "dtw: "+str("%.2f" % metr))
                     print("step "+str(i)+"  dtw: "+str(metr))
                     if metr > 10.0 and min(co2_vent) > 600:
                         client.publish(sensor_cmd_topic,"vent fault")
-                if window_open == False:
-                    break;
+                i=i+1
         time.sleep(0.1)
