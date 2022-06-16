@@ -124,7 +124,7 @@ if __name__ == '__main__':
                 os.remove(file)
             avg = np.genfromtxt('center.csv',delimiter=",") # load dba from csv
             co2_vent = np.empty(0)
-            i = 1
+            i = 0
             while window_open:
                 j = i
                 if len(avg) < j:
@@ -134,10 +134,11 @@ if __name__ == '__main__':
                 if co2 != -1:
                     co2_vent = np.append(co2_vent, co2)
                     co2_mapped = np.interp(co2_vent, (400, co2_vent[0]), (0,1))
-                    metr = dtw.dtw(co2_mapped[:i],avg[:j],lambda x, y: norm(x - y))[0]
-                    saveDBAimg(vent_folder+"step%04d"%i+".jpg",co2_mapped[:i].transpose(), avg[:j], "dtw: "+str("%.2f" % metr))
-                    print("step "+str(i)+"  dtw: "+str(metr))
-                    if metr > 10.0 and min(co2_vent) > 600:
-                        client.publish(sensor_cmd_topic,"vent fault")
+                    if i>1:
+                        metr = dtw.dtw(co2_mapped[:i],avg[:j],lambda x, y: norm(x - y))[0]
+                        saveDBAimg(vent_folder+"step%04d"%i+".jpg",co2_mapped[:i].transpose(), avg[:j], "dtw: "+str("%.2f" % metr))
+                        print("step "+str(i)+"  dtw: "+str(metr))
+                        if metr > 10.0 and min(co2_vent) > 600:
+                            client.publish(sensor_cmd_topic,"vent fault")
                 i = i+1
         time.sleep(0.1)
